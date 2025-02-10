@@ -1,0 +1,20 @@
+{
+  "dependencies": {
+    "axios": "^1.7.9",
+    "chart.js": "^4.4.7",
+    "cors": "^2.8.5",
+    "csv-parser": "^3.2.0",
+    "express": "^4.21.2",
+    "react-chartjs-2": "^5.3.0"
+  },
+  "name": "ws2026-s09-hu-r1",
+  "version": "1.0.0",
+  "description": "You used to work as a freelance software developer, but now you've applied for a job as a developer at a large software development company. The company's management wants to test your skills, so as part of the recruitment process, they asked you to develop prototype applications for a Belle Croissant Lyonnais company.",
+  "main": "import.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
