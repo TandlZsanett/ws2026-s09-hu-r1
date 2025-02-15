@@ -17,40 +17,55 @@ app.use(express.json());
 
 // Helper function to fetch data from JSON Server
 async function fetchCustomers() {
-    const response = await axios.get(JSON_SERVER_URL);
-    return response.data;
+    try {
+        const response = await axios.get(JSON_SERVER_URL);
+        console.log('Customers data from JSON Server:', response.data);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching customers from JSON Server:', error);
+        return [];
+    }
 }
 
 // Endpoint: Overview Metrics
 app.get('/api/overview', async (req, res) => {
-    const customers = await fetchCustomers();
+    try {
+        const customers = await fetchCustomers();
+        console.log('Customers in /api/overview:', customers); 
 
-    const totalCustomers = customers.length;
-    const totalSpending = customers.reduce((sum, customer) => sum + customer.totalSpending, 0);
-    const averageAge = customers.reduce((sum, customer) => sum + customer.age, 0) / totalCustomers;
-    const averageOrderValue = totalSpending / customers.reduce((sum, customer) => sum + customer.frequency, 0);
-    const purchaseFrequency = customers.reduce((sum, customer) => sum + customer.frequency, 0) / totalCustomers;
-
-    // Most frequent purchase category
-    const categoryCounts = {};
-    customers.forEach(customer => {
-        const category = customer.preferredCategory;
-        if (category) {
-            categoryCounts[category] = (categoryCounts[category] || 0) + 1;
+        if (!customers || customers.length === 0) {
+            return res.status(404).json({ error: 'No customers found' });
         }
-    });
-    const mostFrequentCategory = Object.keys(categoryCounts).reduce((a, b) => categoryCounts[a] > categoryCounts[b] ? a : b);
 
-    res.json({
-        totalCustomers,
-        averageAge: Math.round(averageAge),
-        mostFrequentCategory,
-        totalSpending,
-        averageOrderValue: Math.round(averageOrderValue),
-        purchaseFrequency: Math.round(purchaseFrequency),
-    });
+        const totalCustomers = customers.length;
+        const totalSpending = customers.reduce((sum, customer) => sum + (customer.totalSpending|| 0), 0);
+        const averageAge = customers.reduce((sum, customer) => sum + (customer.age || 0), 0) / totalCustomers;
+        const averageOrderValue = totalSpending / customers.reduce((sum, customer) => sum + (customer.frequency || 0), 0);
+        const purchaseFrequency = customers.reduce((sum, customer) => sum + (customer.frequency || 0), 0) / totalCustomers;
+        console.log('Overview metrics:', { totalCustomers, totalSpending, averageAge, averageOrderValue, purchaseFrequency });
+        // Most frequent purchase category
+        const categoryCounts = {};
+        customers.forEach(customer => {
+            const category = customer.preferredCategory;
+            if (category) {
+                categoryCounts[category] = (categoryCounts[category] || 0) + 1;
+            }
+        });
+        const mostFrequentCategory = Object.keys(categoryCounts).reduce((a, b) => categoryCounts[a] > categoryCounts[b] ? a : b, 'N/A');
+
+        res.json({
+            totalCustomers,
+            averageAge: Math.round(averageAge),
+            mostFrequentCategory,
+            totalSpending,
+            averageOrderValue: Math.round(averageOrderValue),
+            purchaseFrequency: Math.round(purchaseFrequency),
+        });
+    } catch (error) {
+        console.error('Error in /api/overview:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
 });
-
 // Endpoint: Demographics
 app.get('/api/demographics', async (req, res) => {
     const customers = await fetchCustomers();
@@ -109,6 +124,11 @@ app.get('/api/trends', async (req, res) => {
     res.json({ yearlyTrends });
 });
 
+
+
+
+
+
 async function fetchCustomers() {
     const response = await axios.get(JSON_SERVER_URL);
     return response.data;
@@ -159,7 +179,9 @@ app.get('/api/customers', async (req, res) => {
         customers: paginatedCustomers,
     });
 });
-
+app.get('/', (req, res) => {
+    res.send('Üdvözöllek az Express szerveren!');
+});
 // Start the server
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);

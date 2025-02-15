@@ -37,9 +37,20 @@ function App() {
 
     useEffect(() => {
         // Fetch overview metrics
-        axios.get('http://localhost:5000/api/overview').then(response => {
-            setOverview(response.data);
+        axios.get('http://localhost:5000/api/overview')
+        .then(response => {
+            console.log('Overview API Response:', response.data);
+            setOverview({
+                ...response.data,
+                averageAge: parseFloat(response.data.averageAge),
+                averageOrderValue: parseFloat(response.data.averageOrderValue),
+                purchaseFrequency: parseFloat(response.data.purchaseFrequency),
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching overview data:', error);
         });
+
 
         // Fetch demographics
         axios.get('http://localhost:5000/api/demographics').then(response => {
